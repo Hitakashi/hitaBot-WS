@@ -25,11 +25,11 @@ Finally, You can tell it to connect to Hitbox Chat Server:
 htbxChat.Connect();
 ```
 
-You can then use methods inside 'ChatMessages' and pass context of HitboxChat to send messages. You can also use HitboxChat.Send(String); to send the correct raw JSON messages.
+You can then use methods inside 'ChatMessages' and pass context of HitboxChat to send messages. You can also use HitboxChat.Send(String); and pass the correct JSON messages to send to the server.
 
 Why do we connect after the events? Because if you connect before you won't recieve the event for connection.
 
-In my opinion, I suggest a 'bot' class to handle creating and storing 'client' objects that start the above process, which contains properties on the channel you're joining.
+In my opinion, I suggest a 'bot' class to handle creating and storing 'client' objects which then start the above process, which contains properties on the channel you're joining.
 
 ### Valid Events
 
