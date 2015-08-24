@@ -21,8 +21,8 @@ namespace hitaBot.WS
 
         public HitboxChat(bool debug = false)
         {
-            if (debug)
-                WebSocketLogging.CreateLogConfig();
+            if (!debug) return;
+            WebSocketLogging.CreateLogConfig();
             if (LogConsole.Instantiate())
             {
                 Console.Title = "WebSocket Debug";
