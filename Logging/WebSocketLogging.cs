@@ -10,6 +10,7 @@ namespace hitaBot.WS.Logging
     {
         public static void CreateLogConfig()
         {
+            if (LogManager.Configuration != null) return;
             var config = new LoggingConfiguration();
 
             var consoleTarget = new ColoredConsoleTarget();
