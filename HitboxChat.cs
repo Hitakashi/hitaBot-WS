@@ -21,6 +21,7 @@ namespace hitaBot.WS
 
         public HitboxChat(bool debug = false)
         {
+            if (Environment.GetEnvironmentVariable("Bluemix") == "true") return;
             if (!debug) return;
             WebSocketLogging.CreateLogConfig();
             if (LogConsole.Instantiate())
@@ -34,18 +35,17 @@ namespace hitaBot.WS
         {
             // Logic get Websocket HTTP URL
             // Use that URL to get Connection ID
-            var server = ServiceGenerator.createService<IChat>().getChatServers().Result;
-            var serverIp = server[0].ServerIp;
+            var server = ServiceGenerator.createService<IChat>().getChatServers().Result[0].ServerIp;
 
             string connectionId;
 
             using (var httpClient = new HttpClient())
             {
-                connectionId = httpClient.GetStringAsync("http://" + serverIp + "/socket.io/1").Result;
+                connectionId = httpClient.GetStringAsync("http://" + server + "/socket.io/1").Result;
             }
 
             _ws =
-                new WebSocket("ws://" + serverIp + "/socket.io/1/websocket/" +
+                new WebSocket("ws://" + server + "/socket.io/1/websocket/" +
                               connectionId.Substring(0, connectionId.IndexOf(":", StringComparison.Ordinal)));
             _ws.OnMessage += Ws_OnMessage;
             _ws.OnOpen += Ws_OnOpen;
@@ -142,6 +142,7 @@ namespace hitaBot.WS
             var handler = OnChatMsg;
 
             if (handler == null) return;
+
             Logger.Info("Sending out chat event for " + e.Channel + " \n" + e);
             handler(this, e);
         }
@@ -151,6 +152,7 @@ namespace hitaBot.WS
             var handler = OnOpen;
 
             if (handler == null) return;
+
             Logger.Info("Sending out open event.");
             handler(this, e);
         }
