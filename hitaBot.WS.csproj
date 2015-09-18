@@ -65,6 +65,7 @@
     <Compile Include="Events\InfoMsgEventArgs.cs" />
     <Compile Include="Events\LoginMsgEventArgs.cs" />
     <Compile Include="Events\MediaLogEventArgs.cs" />
+    <Compile Include="Events\NotifyMsgEventArgs.cs" />
     <Compile Include="Events\ServerMsgEventArgs.cs" />
     <Compile Include="Events\SlowMsgEventArgs.cs" />
     <Compile Include="Events\UserInfoEventArgs.cs" />
@@ -76,6 +77,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\hitaBot.Refit\hitaBot.Refit.csproj">

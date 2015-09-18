@@ -44,5 +44,6 @@ In my opinion, I suggest a 'bot' class to handle creating and storing 'client' o
 * OnUserInfo
 * OnUserList
 * OnSlowMsg
+* OnNotifyMsg
 * OnClose
 * OnOpen
