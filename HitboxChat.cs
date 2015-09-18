@@ -117,6 +117,9 @@ namespace hitaBot.WS
                         case ChatMethod.serverMsg:
                             OnRaiseServerMsg(JsonConvert.DeserializeObject<ServerMsgEventArgs>(paramsObject.ToString()));
                             break;
+                        case ChatMethod.notifyMsg:
+                            OnRaiseNotifyMsg(JsonConvert.DeserializeObject<NotifyMsgEventArgs>(paramsObject.ToString()));
+                            break;
                     }
                 }
             }
@@ -133,6 +136,7 @@ namespace hitaBot.WS
         public event EventHandler<UserInfoEventArgs> OnUserInfo;
         public event EventHandler<UserListEventArgs> OnUserList;
         public event EventHandler<SlowMsgEventArgs> OnSlowMsg;
+        public event EventHandler<NotifyMsgEventArgs> OnNotifyMsg;
         public event EventHandler<EventArgs> OnClose;
         public event EventHandler<EventArgs> OnOpen;
 
@@ -162,6 +166,7 @@ namespace hitaBot.WS
             var handler = OnClose;
 
             if (handler == null) return;
+
             Logger.Info("Sending out close event.");
             handler(this, e);
         }
@@ -169,7 +174,9 @@ namespace hitaBot.WS
         private void OnRaiseBanList(BanListEventArgs e)
         {
             var handler = OnBanList;
+
             if (handler == null) return;
+
             Logger.Info("Sending out ban list event for " + e.Channel + " \n" + e);
             handler(this, e);
         }
@@ -177,7 +184,9 @@ namespace hitaBot.WS
         private void OnRaiseChatLog(ChatLogEventArgs e)
         {
             var handler = OnChatLog;
+
             if (handler == null) return;
+
             Logger.Info("Sending out chat log event for " + e.Channel + " \n" + e);
             handler(this, e);
         }
@@ -185,7 +194,9 @@ namespace hitaBot.WS
         private void OnRaiseDirectMsg(DirectMsgEventArgs e)
         {
             var handler = OnDirectMsg;
+
             if (handler == null) return;
+
             Logger.Info("Sending out direct message event from " + e.From + " sent from " + e.Channel + " channel");
             handler(this, e);
         }
@@ -193,7 +204,9 @@ namespace hitaBot.WS
         private void OnRaiseInfoMsg(InfoMsgEventArgs e)
         {
             var handler = OnInfoMsg;
+
             if (handler == null) return;
+
             Logger.Info("Sending out info message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
@@ -201,7 +214,9 @@ namespace hitaBot.WS
         private void OnRaiseLoginMsg(LoginMsgEventArgs e)
         {
             var handler = OnLoginMsg;
+
             if (handler == null) return;
+
             Logger.Info("Sending out login message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
@@ -209,7 +224,9 @@ namespace hitaBot.WS
         private void OnRaiseMediaLog(MediaLogEventArgs e)
         {
             var handler = OnMediaLog;
+
             if (handler == null) return;
+
             Logger.Info("Sending out media log message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
@@ -217,7 +234,9 @@ namespace hitaBot.WS
         private void OnRaiseServerMsg(ServerMsgEventArgs e)
         {
             var handler = OnServerMsg;
+
             if (handler == null) return;
+
             Logger.Info("Sending out server message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
@@ -225,7 +244,9 @@ namespace hitaBot.WS
         private void OnRaiseUserInfo(UserInfoEventArgs e)
         {
             var handler = OnUserInfo;
+
             if (handler == null) return;
+
             Logger.Info("Sending out user info event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
@@ -233,7 +254,9 @@ namespace hitaBot.WS
         private void OnRaiseUserList(UserListEventArgs e)
         {
             var handler = OnUserList;
+
             if (handler == null) return;
+
             Logger.Info("Sending out user list event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
@@ -241,8 +264,20 @@ namespace hitaBot.WS
         private void OnRaiseSlowMsg(SlowMsgEventArgs e)
         {
             var handler = OnSlowMsg;
+
             if (handler == null) return;
+
             Logger.Info("Sending out slow message event for " + e.Channel + "\n" + e);
+            handler(this, e);
+        }
+
+        private void OnRaiseNotifyMsg(NotifyMsgEventArgs e)
+        {
+            var handler = OnNotifyMsg;
+
+            if (handler == null) return;
+
+            Logger.Info("Sending out notify message event " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -254,6 +289,11 @@ namespace hitaBot.WS
         public void Connect()
         {
             _ws.Connect();
+        }
+
+        public void Close()
+        {
+            _ws.Close();
         }
 
         //private string channel;
