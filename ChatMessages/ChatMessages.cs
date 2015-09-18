@@ -82,7 +82,7 @@ namespace hitaBot.WS.ChatMessages
         public static void SendSlowSubMode(HitboxChat client, string channel, int time, bool sub)
         {
             var sb = new StringBuilder(BaseMessage);
-            sb.Append("\"method\":\"removeMod\",");
+            sb.Append("\"method\":\"slowMode\",");
             sb.Append("\"params\":{");
             sb.Append("\"channel\":\"").Append(channel.ToLower()).Append("\",");
             if (!sub)
