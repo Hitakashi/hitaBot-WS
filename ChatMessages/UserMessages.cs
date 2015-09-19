@@ -6,12 +6,13 @@ namespace hitaBot.WS.ChatMessages
     {
         private const string BaseMessage = "5:::{\"name\":\"message\",\"args\":[{";
 
-        public static void SendJoinRequest(HitboxChat client, string channel, string name, string token)
+        public static void SendJoinRequest(HitboxChat client, string channel, string name, string token, bool notify)
         {
             var sb = new StringBuilder(BaseMessage);
             sb.Append("\"method\":\"joinChannel\",");
             sb.Append("\"params\":{");
             sb.Append("\"channel\":\"").Append(channel.ToLower()).Append("\",");
+            sb.Append("\"notify\":").Append(notify.ToString().ToLower()).Append(",");
             sb.Append("\"name\":\"").Append(name).Append("\",");
             sb.Append("\"token\":\"").Append(token);
             sb.Append("\"}}]}");

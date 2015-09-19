@@ -5,25 +5,20 @@ using hitaBot.Refit;
 using hitaBot.Refit.api;
 using hitaBot.WS.Enums;
 using hitaBot.WS.Events;
-using hitaBot.WS.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NLog;
 using WebSocketSharp;
-using Logger = NLog.Logger;
 
 namespace hitaBot.WS
 {
     public sealed class HitboxChat
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private WebSocket _ws;
 
         public HitboxChat(bool debug = false)
         {
             if (Environment.GetEnvironmentVariable("Bluemix") == "true") return;
             if (!debug) return;
-            WebSocketLogging.CreateLogConfig();
             if (LogConsole.Instantiate())
             {
                 Console.Title = "WebSocket Debug";
@@ -147,7 +142,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out chat event for " + e.Channel + " \n" + e);
+            Console.WriteLine("Sending out chat event for " + e.Channel + " \n" + e);
             handler(this, e);
         }
 
@@ -157,7 +152,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out open event.");
+            Console.WriteLine("Sending out open event.");
             handler(this, e);
         }
 
@@ -167,7 +162,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out close event.");
+            Console.WriteLine("Sending out close event.");
             handler(this, e);
         }
 
@@ -177,7 +172,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out ban list event for " + e.Channel + " \n" + e);
+            Console.WriteLine("Sending out ban list event for " + e.Channel + " \n" + e);
             handler(this, e);
         }
 
@@ -187,7 +182,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out chat log event for " + e.Channel + " \n" + e);
+            Console.WriteLine("Sending out chat log event for " + e.Channel + " \n" + e);
             handler(this, e);
         }
 
@@ -197,7 +192,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out direct message event from " + e.From + " sent from " + e.Channel + " channel");
+            Console.WriteLine("Sending out direct message event from " + e.From + " sent from " + e.Channel + " channel");
             handler(this, e);
         }
 
@@ -207,7 +202,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out info message event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out info message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -217,7 +212,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out login message event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out login message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -227,7 +222,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out media log message event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out media log message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -237,7 +232,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out server message event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out server message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -247,7 +242,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out user info event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out user info event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -257,7 +252,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out user list event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out user list event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -267,7 +262,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out slow message event for " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out slow message event for " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
@@ -277,7 +272,7 @@ namespace hitaBot.WS
 
             if (handler == null) return;
 
-            Logger.Info("Sending out notify message event " + e.Channel + "\n" + e);
+            Console.WriteLine("Sending out notify message event " + e.Channel + "\n" + e);
             handler(this, e);
         }
 
