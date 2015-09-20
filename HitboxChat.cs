@@ -45,6 +45,7 @@ namespace hitaBot.WS
             _ws.OnMessage += Ws_OnMessage;
             _ws.OnOpen += Ws_OnOpen;
             _ws.OnClose += _ws_OnClose;
+            _ws.OnError += _ws_OnError;
             return this;
         }
 
@@ -56,6 +57,12 @@ namespace hitaBot.WS
         private void Ws_OnOpen(object sender, EventArgs e)
         {
             OnRaiseOpenMsg(e);
+        }
+
+
+        private void _ws_OnError(object sender, ErrorEventArgs e)
+        {
+            OnRaiseErrorMsg(e);
         }
 
         private void Ws_OnMessage(object sender, MessageEventArgs e)
@@ -134,6 +141,7 @@ namespace hitaBot.WS
         public event EventHandler<NotifyMsgEventArgs> OnNotifyMsg;
         public event EventHandler<EventArgs> OnClose;
         public event EventHandler<EventArgs> OnOpen;
+        public event EventHandler<ErrorEventArgs> OnError; 
 
 
         private void OnRaiseChatMsg(ChatMsgEventArgs e)
@@ -163,6 +171,16 @@ namespace hitaBot.WS
             if (handler == null) return;
 
             Console.WriteLine("Sending out close event.");
+            handler(this, e);
+        }
+
+        private void OnRaiseErrorMsg(ErrorEventArgs e)
+        {
+            var handler = OnError;
+
+            if (handler == null) return;
+
+            Console.WriteLine("Sending out error event.");
             handler(this, e);
         }
 
