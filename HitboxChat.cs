@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using hitaBot.Refit;
-using hitaBot.Refit.api;
 using hitaBot.WS.Enums;
 using hitaBot.WS.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebSocketSharp;
+using RestSharp;
+using SuperSocket.ClientEngine;
+using WebSocket4Net;
 
 namespace hitaBot.WS
 {
     public sealed class HitboxChat
     {
-        private WebSocket _ws;
+        private static JArray wsUrl;
+        public WebSocket _ws;
 
         public HitboxChat(bool debug = false)
         {
-            if (Environment.GetEnvironmentVariable("Bluemix") == "true") return;
+            PreFetchServers();
+            if (Environment.GetEnvironmentVariable("wsDisableDebug") == "true") return;
             if (!debug) return;
             if (LogConsole.Instantiate())
             {
@@ -28,28 +29,39 @@ namespace hitaBot.WS
 
         public HitboxChat CreateClient()
         {
-            // Logic get Websocket HTTP URL
-            // Use that URL to get Connection ID
-            var server = ServiceGenerator.createService<IChat>().getChatServers().Result[0].ServerIp;
-
-            string connectionId;
-
-            using (var httpClient = new HttpClient())
+            // The following might crash when there's less than 5 servers. Try Check this.
+            string localws;
+            try
             {
-                connectionId = httpClient.GetStringAsync("http://" + server + "/socket.io/1").Result;
+                var address = new Random().Next(0, 5);
+                localws = wsUrl[address].SelectToken("server_ip").ToString();
             }
+            catch (Exception)
+            {
+                localws = wsUrl[0].SelectToken("server_ip").ToString();
+            }
+            Console.WriteLine(localws);
+            var clientConId = new RestClient("http://" + localws);
+            var requestConId = new RestRequest("/socket.io/1", Method.GET);
+            var responseConId = clientConId.Execute(requestConId);
+            var connectionId = responseConId.Content;
 
             _ws =
-                new WebSocket("ws://" + server + "/socket.io/1/websocket/" +
-                              connectionId.Substring(0, connectionId.IndexOf(":", StringComparison.Ordinal)));
-            _ws.OnMessage += Ws_OnMessage;
-            _ws.OnOpen += Ws_OnOpen;
-            _ws.OnClose += _ws_OnClose;
-            _ws.OnError += _ws_OnError;
+                new WebSocket("ws://" + localws + "/socket.io/1/websocket/" +
+                              connectionId.Substring(0, connectionId.IndexOf(":", StringComparison.Ordinal)), "", WebSocketVersion.Rfc6455)
+                {
+                    EnableAutoSendPing = false,
+                    Proxy = null
+                };
+
+            _ws.MessageReceived += Ws_OnMessage;
+            _ws.Opened += Ws_OnOpen;
+            _ws.Closed += _ws_OnClose;
+            _ws.Error += _ws_OnError;
             return this;
         }
 
-        private void _ws_OnClose(object sender, CloseEventArgs e)
+        private void _ws_OnClose(object sender, EventArgs e)
         {
             OnRaiseCloseMsg(e);
         }
@@ -65,10 +77,10 @@ namespace hitaBot.WS
             OnRaiseErrorMsg(e);
         }
 
-        private void Ws_OnMessage(object sender, MessageEventArgs e)
+        private void Ws_OnMessage(object sender, MessageReceivedEventArgs e)
         {
             // We got a message.
-            var data = e.Data;
+            var data = e.Message;
 
             if (data.Equals("2::"))
             {
@@ -82,47 +94,45 @@ namespace hitaBot.WS
                 var paramsObject = args.GetValue("params");
 
                 ChatMethod methodName;
-                if (Enum.TryParse(method.ToString(), out methodName))
+                if (!Enum.TryParse(method.ToString(), out methodName)) return;
+                switch (methodName)
                 {
-                    switch (methodName)
-                    {
-                        case ChatMethod.chatMsg:
-                            OnRaiseChatMsg(JsonConvert.DeserializeObject<ChatMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.directMsg:
-                            OnRaiseDirectMsg(JsonConvert.DeserializeObject<DirectMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.infoMsg:
-                            OnRaiseInfoMsg(JsonConvert.DeserializeObject<InfoMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.loginMsg:
-                            OnRaiseLoginMsg(JsonConvert.DeserializeObject<LoginMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.chatLog:
-                            OnRaiseChatLog(JsonConvert.DeserializeObject<ChatLogEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.userList:
-                            OnRaiseUserList(JsonConvert.DeserializeObject<UserListEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.userInfo:
-                            OnRaiseUserInfo(JsonConvert.DeserializeObject<UserInfoEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.mediaLog:
-                            OnRaiseMediaLog(JsonConvert.DeserializeObject<MediaLogEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.banList:
-                            OnRaiseBanList(JsonConvert.DeserializeObject<BanListEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.slowMsg:
-                            OnRaiseSlowMsg(JsonConvert.DeserializeObject<SlowMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.serverMsg:
-                            OnRaiseServerMsg(JsonConvert.DeserializeObject<ServerMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                        case ChatMethod.notifyMsg:
-                            OnRaiseNotifyMsg(JsonConvert.DeserializeObject<NotifyMsgEventArgs>(paramsObject.ToString()));
-                            break;
-                    }
+                    case ChatMethod.chatMsg:
+                        OnRaiseChatMsg(JsonConvert.DeserializeObject<ChatMsgEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.directMsg:
+                        OnRaiseDirectMsg(JsonConvert.DeserializeObject<DirectMsgEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.infoMsg:
+                        OnRaiseInfoMsg(JsonConvert.DeserializeObject<InfoMsgEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.loginMsg:
+                        OnRaiseLoginMsg(JsonConvert.DeserializeObject<LoginMsgEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.chatLog:
+                        OnRaiseChatLog(JsonConvert.DeserializeObject<ChatLogEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.userList:
+                        OnRaiseUserList(JsonConvert.DeserializeObject<UserListEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.userInfo:
+                        OnRaiseUserInfo(JsonConvert.DeserializeObject<UserInfoEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.mediaLog:
+                        OnRaiseMediaLog(JsonConvert.DeserializeObject<MediaLogEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.banList:
+                        OnRaiseBanList(JsonConvert.DeserializeObject<BanListEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.slowMsg:
+                        OnRaiseSlowMsg(JsonConvert.DeserializeObject<SlowMsgEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.serverMsg:
+                        OnRaiseServerMsg(JsonConvert.DeserializeObject<ServerMsgEventArgs>(paramsObject.ToString()));
+                        break;
+                    case ChatMethod.notifyMsg:
+                        OnRaiseNotifyMsg(JsonConvert.DeserializeObject<NotifyMsgEventArgs>(paramsObject.ToString()));
+                        break;
                 }
             }
         }
@@ -141,7 +151,7 @@ namespace hitaBot.WS
         public event EventHandler<NotifyMsgEventArgs> OnNotifyMsg;
         public event EventHandler<EventArgs> OnClose;
         public event EventHandler<EventArgs> OnOpen;
-        public event EventHandler<ErrorEventArgs> OnError; 
+        public event EventHandler<ErrorEventArgs> OnError;
 
 
         private void OnRaiseChatMsg(ChatMsgEventArgs e)
@@ -301,12 +311,22 @@ namespace hitaBot.WS
 
         public void Connect()
         {
-            _ws.Connect();
+            _ws.Open();
         }
 
         public void Close()
         {
             _ws.Close();
+        }
+
+        public static void PreFetchServers()
+        {
+            var client = new RestClient("https://api.hitbox.tv");
+            var request = new RestRequest("/chat/servers", Method.GET);
+            var response = client.Execute(request);
+            var jsonWsUrl = response.Content;
+            Console.WriteLine("Content: " + jsonWsUrl);
+            wsUrl = JArray.Parse(jsonWsUrl);
         }
 
         //private string channel;
