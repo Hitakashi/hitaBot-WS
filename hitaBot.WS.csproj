@@ -63,6 +63,7 @@
     <Compile Include="Events\SlowMsgEventArgs.cs" />
     <Compile Include="Events\UserInfoEventArgs.cs" />
     <Compile Include="Events\UserListEventArgs.cs" />
+    <Compile Include="Events\WSErrorEventArgs.cs" />
     <Compile Include="HitboxChat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -74,7 +74,8 @@ namespace hitaBot.WS
 
         private void _ws_OnError(object sender, ErrorEventArgs e)
         {
-            OnRaiseErrorMsg(e);
+            WSErrorEventArgs wsError = new WSErrorEventArgs(e.Exception);
+            OnRaiseErrorMsg(wsError);
         }
 
         private void Ws_OnMessage(object sender, MessageReceivedEventArgs e)
@@ -151,7 +152,7 @@ namespace hitaBot.WS
         public event EventHandler<NotifyMsgEventArgs> OnNotifyMsg;
         public event EventHandler<EventArgs> OnClose;
         public event EventHandler<EventArgs> OnOpen;
-        public event EventHandler<ErrorEventArgs> OnError;
+        public event EventHandler<WSErrorEventArgs> OnError;
 
 
         private void OnRaiseChatMsg(ChatMsgEventArgs e)
@@ -184,7 +185,7 @@ namespace hitaBot.WS
             handler(this, e);
         }
 
-        private void OnRaiseErrorMsg(ErrorEventArgs e)
+        private void OnRaiseErrorMsg(WSErrorEventArgs e)
         {
             var handler = OnError;
 
